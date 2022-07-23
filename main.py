@@ -3,9 +3,11 @@ import time
 
 from os.path import exists
 
+from datetime import timedelta
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import WebDriverException
 from win10toast import ToastNotifier
 
 ''' TO-DO
@@ -72,11 +74,20 @@ print(dest_city_name)
 city_dest.click()
 time.sleep(1)
 
-# choosing dates - now hard-coded
-day_of_month = datetime.datetime.today().day
-print(day_of_month)
-depart_day = window.find_element(By.CSS_SELECTOR, "div.calendar-body__cell[data-id='2022-07-28']")
-depart_day.click()
+# choosing date(10 days from today's date)
+ten_days_from_now = datetime.date.today() + timedelta(days=9)
+is_first_day_checked = False
+
+while not is_first_day_checked:
+    try:
+        print(ten_days_from_now)
+        depart_day = window.find_element(By.CSS_SELECTOR,
+                                         "div.calendar-body__cell[data-id='" + str(ten_days_from_now) + "']")
+        depart_day.click()
+        is_first_day_checked = True
+    except WebDriverException:
+        ten_days_from_now = ten_days_from_now + timedelta(days=1)
+        continue
 
 # clicking 'Find flights' button
 find_button = window.find_element_by_xpath(
@@ -85,7 +96,7 @@ find_button.click()
 
 # downloading the price for the chosen day
 price_div = window.find_element_by_xpath(
-    "/html/body/app-root/flights-root/div/div/div/div/flights-lazy-content/flights-summary-container/flights-summary/div/div[1]/journey-container/journey/flight-list/div/flight-card/div/div/div[3]/flight-price/div/span[3]/flights-price-simple")
+    "/html/body/app-root/flights-root/div/div/div/div/flights-lazy-content/flights-summary-container/flights-summary/div/div[1]/journey-container/journey/div/div[2]/div/carousel-container/carousel/div/ul/li[3]/carousel-item/button/div[2]/flights-price/ry-price/span[2]")
 price = price_div.get_attribute('innerHTML').strip()
 print(price)
 
@@ -101,15 +112,15 @@ if not exists(file_name):
 # writing data to the file
 f = open(file_name, "a")
 flight_to_write = str(datetime.date.today()) + "\t" + depart_city_name + "-" + dest_city_name + "\t\t\t" + str(
-    datetime.date.today()) + "\t" + str(
+    ten_days_from_now) + "\t" + str(
     price) + '\n'
 f.write(flight_to_write)
 f.close()
 
 # windows notifications with the price and the date
 noti = ToastNotifier()
-noti.show_toast("Ryanair Krakow-Leeds", "Flight on the day: " + str(datetime.date.today()) + "The price: " + str(price),
+noti.show_toast("Ryanair Krakow-Leeds", "Flight on the day: " + str(ten_days_from_now) + "\nThe price: " + str(price),
                 icon_path=None, duration=5)
 
-# close window
+# close the window
 window.quit()
