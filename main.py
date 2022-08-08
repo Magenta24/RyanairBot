@@ -60,7 +60,7 @@ try:
 
     ### choosing departure country  - Poland
     country_depart = window.find_element_by_xpath(
-        "//div[@class='countries__country b2 ng-star-inserted']/span[text()[contains(.,'Polska')]]")
+        "//div[contains(@class,'countries__country')]/span[text()[contains(.,'Polska')]]")
     country_depart.click()
     time.sleep(1)
 
@@ -105,15 +105,16 @@ try:
             ten_days_from_now = ten_days_from_now + timedelta(days=1)
 
     # clicking 'Find flights' button
-    find_button = window.find_element_by_xpath(
-        "//button[@class='flight-search-widget__start-search ng-tns-c81-3 ry-button--gradient-yellow']")
+    find_button = window.find_element_by_xpath("//button[contains(@class, 'flight-search-widget__start-search')]")
     find_button.click()
 
     # downloading the price for the chosen day
-    price_div = window.find_element_by_xpath(
-        "/html/body/app-root/flights-root/div/div/div/div/flights-lazy-content/flights-summary-container/flights-summary/div/div[1]/journey-container/journey/div/div[2]/div/carousel-container/carousel/div/ul/li[3]/carousel-item/button/div[2]/flights-price/ry-price/span[2]")
-    price = price_div.get_attribute('innerHTML').strip()
-    print(price)
+    price_span = window.find_element_by_xpath("//span[contains(@class, 'price__integers')]")
+    price = price_span.get_attribute('innerHTML').strip()
+
+    # replacing the hard-breaking space with regular one if there is one
+    if price.find('&nbsp;') > -1:
+        price = price.replace('&nbsp;', ' ')
 
     # writing the flight data to file
     file_name = "flight-" + depart_city_name + "-" + dest_city_name + "-" + str(datetime.date.today()) + ".txt"
@@ -129,7 +130,7 @@ try:
     writeFlightToFile(f, depart_city_name, dest_city_name, ten_days_from_now, price)
 
     # searching for the next day
-    edit_search_btn = window.find_element_by_xpath("//button[@class='details__edit-search']")
+    edit_search_btn = window.find_element_by_xpath("//button[contains(@class,'details__edit-search')]")
     edit_search_btn.click()
     time.sleep(2)
     edit_search_choose_date = window.find_element(By.CSS_SELECTOR, 'div.flight-widget-controls__calendar')
@@ -146,16 +147,21 @@ try:
             day_counter += 1
             # clicking button 'search again'
             search_again_btn = window.find_element_by_xpath(
-                "//button[@class='flight-search-widget__start-search ng-tns-c203-13 ry-button--flat-blue']").click()
-            time.sleep(2)
-            price_div = window.find_element(By.TAG_NAME, "flights-price-simple")
-            price = price_div.get_attribute('innerHTML').strip()
+                "//button[contains(@data-ref, 'flight-search-widget__cta')]")
+
+            search_again_btn.click()
+            time.sleep(1.5)
+            price_span = window.find_element_by_xpath("//span[contains(@class, 'price__integers')]")
+            price = price_span.get_attribute('innerHTML').strip()
+
+            # replacing the hard-breaking space with regular one
+            if price.find('&nbsp;') > -1:
+                price = price.replace('&nbsp;', ' ')
             writeFlightToFile(f, depart_city_name, dest_city_name, ten_days_from_now, price)
 
-            edit_search_btn = window.find_element_by_xpath(
-                "//button[@class='flight-search-widget__start-search ng-tns-c203-13 ry-button--flat-blue']")
+            edit_search_btn = window.find_element_by_xpath("//button[contains(@class,'details__edit-search')]")
             edit_search_btn.click()
-            time.sleep(2)
+            time.sleep(1)
             edit_search_choose_date = window.find_element(By.CSS_SELECTOR, 'div.flight-widget-controls__calendar')
             edit_search_choose_date.click()
         else:
@@ -173,5 +179,5 @@ try:
     window.quit()
 except Exception as e:
     logging.error(traceback.format_exc())
-    time.sleep(5)
-    window.quit()
+    # time.sleep(5)
+    # window.quit()
