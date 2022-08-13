@@ -4,6 +4,8 @@ import time
 import traceback
 
 from Notification import Notification
+from Flight import Flight
+from airport_data import Airports
 from os.path import exists
 
 from datetime import timedelta
@@ -14,28 +16,25 @@ from selenium.common.exceptions import WebDriverException
 
 class RyanairBot:
     # class attributes with default values
-    __departure_country = 'Polska'
-    __departure_city = 'Kraków'
-    __destination_country = 'Wielka Brytania'
-    __destination_city = 'Leeds'
     __todays_date = datetime.date.today()
     __search_start_date = __todays_date + timedelta(days=10)
     __min_price = 2147483647
     __browser = None
+    __min_price_flight = None
 
-    def __init__(self, browser):
+    def __init__(self, browser, departure_city, destination_city, ):
         self.__browser = browser
-
-    # def __init__(self, depart_city, dest_city):
-    #     self.__departure_city = depart_city
-    #     self.__destination_city = dest_city
-    #     # flight = Flight(depart_city, dest_city)
+        self.__min_price_flight = Flight(departure_city, destination_city)
 
     def run(self):
         try:
             # create new web browser window
             if self.__browser == 'Chrome':
-                window = webdriver.Chrome(executable_path=r'J:\chromedriver.exe')
+                options = webdriver.ChromeOptions()
+                # options.add_argument('--disable-blink-features=AutomationControlled')
+                options.add_experimental_option("excludeSwitches", ["enable-automation"])
+                options.add_experimental_option('useAutomationExtension', False)
+                window = webdriver.Chrome(executable_path=r'J:\chromedriver.exe', options=options)
             elif self.__browser == 'Mozilla':
                 window = webdriver.Firefox(executable_path=r'J:\geckodriver.exe')
             else:
@@ -62,13 +61,15 @@ class RyanairBot:
 
             # choosing departure country  - Poland
             country_depart = window.find_element_by_xpath(
-                "//div[contains(@class,'countries__country')]/span[text()[contains(.,'Polska')]]")
+                "//div[contains(@class,'countries__country')]/span[text()[contains(.,'" +
+                self.__min_price_flight.getDepartureCountry() + "')]]")
             country_depart.click()
             self.__waitToLoadSiteContent(1)
 
-            # choosing departure city - Krakow
+            # choosing departure city
+            self.__waitToLoadSiteContent(1)
             city_depart = window.find_element_by_xpath(
-                "//span[@data-id='KRK']")
+                "//span[@data-id='" + self.__min_price_flight.getDeparturePortIATACode() + "']")
             depart_city_name = city_depart.text
             city_depart.click()
             self.__waitToLoadSiteContent(1)
@@ -81,13 +82,14 @@ class RyanairBot:
 
             # choosing country - United Kingdom
             country_dest = window.find_element_by_xpath(
-                "//div[@class='countries__country b2 ng-star-inserted']/span[text()[contains(.,'Wielka Brytania')]]")
+                "//div[@class='countries__country b2 ng-star-inserted']/span[text()[contains(.,'" +
+                self.__min_price_flight.getDestinationCountry() + "')]]")
             country_dest.click()
             self.__waitToLoadSiteContent(1)
 
             # choosing city - Leeds
             city_dest = window.find_element_by_xpath(
-                "//span[@data-id='LBA']")
+                "//span[@data-id='" + self.__min_price_flight.getDestinationPortIATACode() + "']")
             dest_city_name = city_dest.text.split('/')[0]
             city_dest.click()
             self.__waitToLoadSiteContent(1)
@@ -116,11 +118,11 @@ class RyanairBot:
             price = self.__downloadPrice(window)
 
             # updating the minimum price
-            self.__updateMinPrice(int(price))
+            self.__updateMinPrice(int(price), ten_days_from_now)
 
             # writing the flight data to file
-            file_name = "ryanair-prices-" + depart_city_name + "-" + dest_city_name + "-" + str(
-                datetime.date.today()) + ".csv"
+            file_name = "ryanair-prices-" + self.__min_price_flight.getDepartureCity() + "-" + self.__min_price_flight.getDestinationCity() + "-" + str(
+                datetime.date.today()) + ".txt"
 
             # check if file with such a name exists
             if not exists(file_name):
@@ -130,11 +132,12 @@ class RyanairBot:
 
             # writing data to the file - from the first search
             f = open(file_name, "a")
-            self.__writeFlightToFile(f, self.__departure_city, self.__destination_city, ten_days_from_now, price)
+            self.__writeFlightToFile(f, self.__min_price_flight.getDepartureCity(),
+                                     self.__min_price_flight.getDestinationCity(), ten_days_from_now, price)
 
             # find 'Edit Search' button and then Calendar
             self.__findEditSearchBtnAndClick(window)
-            self.__waitToLoadSiteContent(2)
+            self.__waitToLoadSiteContent(1)
             self.__findCalendarAndClick(window)
 
             # downloading prices for the next 30 days and writing them to the file
@@ -189,12 +192,12 @@ class RyanairBot:
 
         while number_of_days > 0:
             start_date = start_date + timedelta(days=1)
-            self.__waitToLoadSiteContent(1.5)
             day_to_check = window.find_element(By.CSS_SELECTOR,
                                                "div.calendar-body__cell[data-id='" + str(start_date) + "']")
 
             # check if element with given day is clickable
             if self.__isElementClickable(day_to_check):
+                print(number_of_days)
                 number_of_days -= 1
 
                 # clicking button 'search again'
@@ -202,17 +205,17 @@ class RyanairBot:
                     "//button[contains(@data-ref, 'flight-search-widget__cta')]")
                 search_again_btn.click()
 
-                self.__waitToLoadSiteContent(1.5)
+                self.__waitToLoadSiteContent(1)
 
                 # downloading the price for the chosen day
                 price = self.__downloadPrice(window)
 
                 # updating the minimum price
-                self.__updateMinPrice(int(price))
+                self.__updateMinPrice(int(price), start_date)
 
                 # writing flight data to the file
-                self.__writeFlightToFile(file_pointer, self.__departure_city, self.__destination_city, start_date,
-                                         price)
+                self.__writeFlightToFile(file_pointer, self.__min_price_flight.getDepartureCity(),
+                                         self.__min_price_flight.getDestinationCity(), start_date, price)
 
                 self.__findEditSearchBtnAndClick(window)
                 self.__waitToLoadSiteContent(1)
@@ -250,20 +253,21 @@ class RyanairBot:
         edit_search_choose_date = window.find_element(By.CSS_SELECTOR, 'div.flight-widget-controls__calendar')
         edit_search_choose_date.click()
 
-    def __updateMinPrice(self, price):
+    def __updateMinPrice(self, price, date):
         """
         if given price is smaller than the self.__min_price then self.__min_price = price
         """
 
         if price < self.__min_price:
-            self.__min_price = price
+            self.__min_price_flight.setPrice(price)
+            self.__min_price_flight.setDate(date)
 
     def __sendNotification(self):
         """
         windows notifications with the price and the date
         """
 
-        title_msg = "Ryanair " + self.__departure_city + "-" + self.__destination_city
+        title_msg = "Ryanair " + self.__min_price_flight.getDepartureCity() + "-" + self.__min_price_flight.getDestinationCity()
         content_msg = "Flight on the day: " + str(self.__search_start_date) + "\nThe price: " + str(
             self.__min_price) + " zlotych wspanialych polskich"
         win_not = Notification(title_msg, content_msg, 5)
