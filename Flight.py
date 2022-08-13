@@ -18,8 +18,9 @@ class Flight:
     #
     def __init__(self, depart_city, dest_city):
         self.__departure_city = depart_city
-        self.__destination_city = dest_city
+        self.__departure_country = Airports[depart_city].country
         self.__depart_IATA_code = Airports[depart_city].IATA_code
+        self.__destination_city = dest_city
 
     def setPrice(self, price):
         self.__price = price
