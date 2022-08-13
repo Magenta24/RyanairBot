@@ -20,6 +20,6 @@ from RyanairBot import RyanairBot
 4. Checking flights' prices from all polish airports
 '''
 
-botek = RyanairBot('Chrome')
+botek = RyanairBot('Chrome', 'Krakow', 'Leeds')
 botek.run()
 
