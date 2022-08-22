@@ -1,25 +1,19 @@
-import datetime
-import logging
+import threading
 import time
-import traceback
-
-from os.path import exists
-
-from datetime import timedelta
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import WebDriverException
-from win10toast import ToastNotifier
 from RyanairBot import RyanairBot
 
-''' TO-DO
-3. Creating client-server
-    - the app will run on server
-    - whenever the client will connect, the app will download report with flights data and there will be system notification
-4. Checking flights' prices from all polish airports
-'''
 
-botek = RyanairBot('Chrome', 'Krakow', 'Leeds')
-botek.run()
+departure_cities = ('Krakow', 'Wroclaw', 'Poznan')
+
+bot_krk = RyanairBot('Chrome', 'Krakow', 'Leeds')
+botek_poz = RyanairBot('Chrome', 'Poznan', 'Leeds')
+botek_wro = RyanairBot('Chrome', 'Wroclaw', 'Leeds')
+
+t_krk = threading.Thread(target=bot_krk.run())
+t_poz = threading.Thread(target=botek_poz.run())
+t_wro = threading.Thread(target=botek_wro.run())
+
+t_krk.start()
+t_wro.start()
+t_poz.start()
 
