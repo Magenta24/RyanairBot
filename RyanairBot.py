@@ -133,7 +133,7 @@ class RyanairBot:
 
             # writing the flight data to file
             file_name = "ryanair-prices-" + self.__min_price_flight.getDepartureCity() + "-" + self.__min_price_flight.getDestinationCity() + "-" + str(
-                datetime.date.today()) + ".txt"
+                datetime.date.today()) + "-" + str(datetime.datetime.now().strftime("%H%M%S")) +".txt"
 
             # check if file with such a name exists
             if not exists(file_name):
