@@ -286,7 +286,7 @@ class RyanairBot:
 
         title_msg = "Ryanair " + self.__min_price_flight.getDepartureCity() + "-" + self.__min_price_flight.getDestinationCity()
         content_msg = "Flight on the day: " + str(self.__min_price_flight.getFlightDate()) + "\nThe price: " + str(
-            self.__min_price) + " zlotych wspanialych polskich"
+            self.__min_price) + " " + self.__min_price_flight.getPriceCurrency()
         win_not = Notification(title_msg, content_msg, 5)
         win_not.sendNotification()
 

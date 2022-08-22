@@ -12,6 +12,7 @@ class Flight:
     __dest_port_IATA_code = 'LBA'
     __date = None
     __price = -1
+    __price_currency = None
 
     # def __init__(self):
     #     pass
@@ -21,6 +22,7 @@ class Flight:
         self.__departure_country = Airports[depart_city].country
         self.__depart_IATA_code = Airports[depart_city].IATA_code
         self.__destination_city = dest_city
+        self.__price_currency = Airports[depart_city].currency
 
     def setPrice(self, price):
         self.__price = price
@@ -51,3 +53,6 @@ class Flight:
 
     def getPrice(self):
         return self.__price
+
+    def getPriceCurrency(self):
+        return self.__price_currency
