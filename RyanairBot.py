@@ -112,10 +112,11 @@ class RyanairBot:
                                                      "div.calendar-body__cell[data-id='" + str(
                                                          search_start_date) + "']")
                 is_first_day_chosen = self.__isElementClickable(depart_day_div)
-                print('Search start date: ' + str(search_start_date) + '.')
 
                 if not is_first_day_chosen:
                     search_start_date = search_start_date + timedelta(days=1)
+
+            print('Search start date: ' + str(search_start_date) + '.')
 
             # clicking 'Find flights' button
             find_button = window.find_element_by_xpath(
@@ -152,7 +153,7 @@ class RyanairBot:
             self.__findCalendarAndClick(window)
 
             # downloading prices for the next 30 days and writing them to the file
-            self.__checkFlightPricesNDaysAhead(30, window, f, search_start_date)
+            self.__checkFlightPricesNDaysAhead(20, window, f, search_start_date)
 
             # closing file
             f.close()
@@ -284,7 +285,7 @@ class RyanairBot:
         """
 
         title_msg = "Ryanair " + self.__min_price_flight.getDepartureCity() + "-" + self.__min_price_flight.getDestinationCity()
-        content_msg = "Flight on the day: " + str(self.__search_start_date) + "\nThe price: " + str(
+        content_msg = "Flight on the day: " + str(self.__min_price_flight.getFlightDate()) + "\nThe price: " + str(
             self.__min_price) + " zlotych wspanialych polskich"
         win_not = Notification(title_msg, content_msg, 5)
         win_not.sendNotification()
