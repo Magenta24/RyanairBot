@@ -10,9 +10,11 @@ from os.path import exists
 from datetime import timedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 
 
 class RyanairBot:
@@ -38,9 +40,9 @@ class RyanairBot:
                 options.add_experimental_option('useAutomationExtension', False)
 
                 # running bot without 'opening' browser window
-                options.add_argument('headless')
+                # options.add_argument('headless')
 
-                window = webdriver.Chrome(executable_path=r'J:\chromedriver.exe', options=options)
+                window = webdriver.Chrome(executable_path=r'J:\chromedriver_v105.exe', options=options)
                 print('Ryanair Bot is running in ' + self.__browser + '...')
             elif self.__browser == 'Mozilla':
                 window = webdriver.Firefox(executable_path=r'J:\geckodriver.exe')
@@ -51,11 +53,22 @@ class RyanairBot:
             # open a ryanair site
             window.get("https://www.ryanair.com/pl/pl")
 
-            # accepting cookies
+            # accepting cookies - only selected cookies (only those mandatory)
             self.__waitToLoadSiteContent(2)
-            cookies = window.find_element_by_xpath('/html/body/div/div/div[3]/button[2]')
+            cookies = window.find_element_by_xpath('/html/body/div/div/div[3]/button[1]')
             cookies.click()
+            self.__waitToLoadSiteContent(2)
+            # switch to iframe
+            window.switch_to.frame(window.find_element_by_xpath("//iframe[@id='cookie-preferences__iframe']"))
+            self.__waitToLoadSiteContent(2)
+            toggle = window.find_element_by_xpath('//cookies-details/div/div[7]/div/ry-toggle/label/div/div/div')
+            toggle.click()
+            confirm_cookies = window.find_element_by_xpath(
+                '//cookies-root/ng-component/main/section/div/cookies-details/div/button')
+            confirm_cookies.click()
             print('Cookies accepted.')
+            # switch back to the outer window
+            window.switch_to.default_content()
 
             # selecting one-way trip
             one_way_btn = window.find_element_by_xpath(
@@ -133,7 +146,7 @@ class RyanairBot:
 
             # writing the flight data to file
             file_name = "ryanair-prices-" + self.__min_price_flight.getDepartureCity() + "-" + self.__min_price_flight.getDestinationCity() + "-" + str(
-                datetime.date.today()) + "-" + str(datetime.datetime.now().strftime("%H%M%S")) +".txt"
+                datetime.date.today()) + "-" + str(datetime.datetime.now().strftime("%H%M%S")) + ".txt"
 
             # check if file with such a name exists
             if not exists(file_name):
@@ -293,6 +306,7 @@ class RyanairBot:
     def __waitForElementToLoad(self, window, path):
         """
         waiting given time for an element to load on the site. After that time an exception is raised
+        Returns an element obtained from the given xpath
         """
 
         delay = 5  # max time to wait
