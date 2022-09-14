@@ -42,56 +42,9 @@ class RyanairBot:
             # accepting only mandatory cookies
             window.handleCookies()
 
-            # selecting one-way trip
-            window.findElementByXPATHAndClick(
-                "//fsw-trip-type-button[@data-ref='flight-search-trip-type__one-way-trip']")
-            print('One-way trip chosen.')
-
-            # choosing departure country
-            window.findElementByXPATHAndClick("//*[@id='input-button__departure']")
-            window.waitToLoadSiteContent(1)
-            window.findElementByXPATHAndClick("//div[contains(@class,'countries__country')]/span[text()[contains(.,'" +
-                                              self.__min_price_flight.getDepartureCountry() + "')]]")
-            window.waitToLoadSiteContent(1)
-
-            # choosing departure city
-            window.findElementByXPATHAndClick(
-                "//span[@data-id='" + self.__min_price_flight.getDeparturePortIATACode() + "']")
-            print('Departure city: ' + self.__min_price_flight.getDepartureCity() + ' chosen.')
-            window.waitToLoadSiteContent(1)
-
-            # choosing destination country
-            window.findElementByXPATHAndDoubleClick("//*[@id='input-button__destination']")
-            window.waitToLoadSiteContent(1)
-            window.findElementByXPATHAndClick(
-                "//div[contains(@class, 'countries__country')]/span[text()[contains(.,'"
-                + self.__min_price_flight.getDestinationCountry() + "')]]")
-            window.waitToLoadSiteContent(1)
-
-            # choosing destination city
-            window.findElementByXPATHAndClick(
-                "//span[@data-id='" + self.__min_price_flight.getDestinationPortIATACode() + "']")
-            print('Destination city: ' + self.__min_price_flight.getDestinationCity() + ' chosen.')
-            window.waitToLoadSiteContent(1)
-
-            # choosing start date (at least 10 days from today's date)
-            search_start_date = datetime.date.today() + timedelta(days=10)
-            is_first_day_chosen = False
-
-            while not is_first_day_chosen:
-                depart_day_div = window.getWindow().find_element(By.CSS_SELECTOR,
-                                                                 "div.calendar-body__cell[data-id='" + str(
-                                                                     search_start_date) + "']")
-                is_first_day_chosen = window.isElementClickable(depart_day_div)
-
-                if not is_first_day_chosen:
-                    search_start_date = search_start_date + timedelta(days=1)
-
-            print('Search start date: ' + str(search_start_date) + '.')
-
-            # clicking 'Find flights' button
-            window.findElementByXPATHAndClick("//button[contains(@class, 'flight-search-widget__start-search')]")
-            window.waitToLoadSiteContent(2)
+            # search for flight
+            search_start_date = window.searchForFlight(self.__min_price_flight.getDepartureCity(),
+                                                       self.__min_price_flight.getDestinationCity())
 
             # downloading the price for the chosen day
             price = self.__downloadPrice(window)

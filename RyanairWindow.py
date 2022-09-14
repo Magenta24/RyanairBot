@@ -1,3 +1,6 @@
+import datetime
+from airport_data import Airports
+
 from Window import Window
 
 from datetime import timedelta
@@ -81,3 +84,64 @@ class RyanairWindow(Window):
         element.click()
         element.click()
 
+    def searchForFlight(self, departure_city, destination_city):
+        """
+        searching for a given flight
+
+        :param departure_city:
+        :param destination_city:
+        :return: date when the search begins
+        """
+
+        # selecting one-way trip
+        self.findElementByXPATHAndClick(
+            "//fsw-trip-type-button[@data-ref='flight-search-trip-type__one-way-trip']")
+        print('One-way trip chosen.')
+
+        # choosing departure country
+        self.findElementByXPATHAndClick("//*[@id='input-button__departure']")
+        self.waitToLoadSiteContent(1)
+        self.findElementByXPATHAndClick("//div[contains(@class,'countries__country')]/span[text()[contains(.,'" +
+                                        Airports[departure_city].country + "')]]")
+        self.waitToLoadSiteContent(1)
+
+        # choosing departure city
+        self.findElementByXPATHAndClick(
+            "//span[@data-id='" + Airports[departure_city].IATA_code + "']")
+        print('Departure city: ' + departure_city + ' chosen.')
+        self.waitToLoadSiteContent(1)
+
+        # choosing destination country
+        self.findElementByXPATHAndDoubleClick("//*[@id='input-button__destination']")
+        self.waitToLoadSiteContent(1)
+        self.findElementByXPATHAndClick(
+            "//div[contains(@class, 'countries__country')]/span[text()[contains(.,'"
+            + Airports[destination_city].country + "')]]")
+        self.waitToLoadSiteContent(1)
+
+        # choosing destination city
+        self.findElementByXPATHAndClick(
+            "//span[@data-id='" + Airports[destination_city].IATA_code + "']")
+        print('Destination city: ' + destination_city + ' chosen.')
+        self.waitToLoadSiteContent(1)
+
+        # choosing start date (at least 10 days from today's date)
+        search_start_date = datetime.date.today() + timedelta(days=10)
+        is_first_day_chosen = False
+
+        while not is_first_day_chosen:
+            depart_day_div = self.__ryanair_window.find_element(By.CSS_SELECTOR,
+                                                                "div.calendar-body__cell[data-id='" + str(
+                                                                    search_start_date) + "']")
+            is_first_day_chosen = self.isElementClickable(depart_day_div)
+
+            if not is_first_day_chosen:
+                search_start_date = search_start_date + timedelta(days=1)
+
+        print('Search start date: ' + str(search_start_date) + '.')
+
+        # clicking 'Find flights' button
+        self.findElementByXPATHAndClick("//button[contains(@class, 'flight-search-widget__start-search')]")
+        self.waitToLoadSiteContent(2)
+
+        return search_start_date
