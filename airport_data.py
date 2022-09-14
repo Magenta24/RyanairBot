@@ -8,6 +8,7 @@ Airports = {
     'Poznan': Airport('Poznan', 'Polska', 'POZ', 'PLN'),
     'Gdansk': Airport('Gdansk', 'Polska', 'GDN', 'PLN'),
     'Warszawa-Modlin': Airport('Warszawa-Modlin', 'Polska', 'WMI', 'PLN'),
-    'Bratyslawa': Airport('Bratislava', 'Słowacja', 'BTS', 'EUR')
+    'Bratyslawa': Airport('Bratislava', 'Słowacja', 'BTS', 'EUR'),
+    'Leeds': Airport('Leeds/Bradford', 'Wielka Brytania', 'LBA', 'GBP')
 }
 
