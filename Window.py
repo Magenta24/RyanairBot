@@ -102,3 +102,6 @@ class Window:
             return True
         except WebDriverException:
             return False
+
+    def closeWindow(self):
+        self.__window.quit()
