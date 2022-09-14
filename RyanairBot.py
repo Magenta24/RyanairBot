@@ -5,16 +5,15 @@ import traceback
 
 from Notification import Notification
 from Flight import Flight
+from RyanairWindow import RyanairWindow
 from os.path import exists
 
 from datetime import timedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support import expected_conditions as ec
 
 
 class RyanairBot:
@@ -31,100 +30,59 @@ class RyanairBot:
 
     def run(self):
         try:
-            # create new web browser window
+            # create Ryanair website window
             if self.__browser == 'Chrome':
-
-                # hiding bot from detecting by Chrome browser
-                options = webdriver.ChromeOptions()
-                options.add_experimental_option("excludeSwitches", ["enable-automation"])
-                options.add_experimental_option('useAutomationExtension', False)
-
-                # running bot without 'opening' browser window
-                # options.add_argument('headless')
-
-                window = webdriver.Chrome(executable_path=r'J:\chromedriver_v105.exe', options=options)
-                print('Ryanair Bot is running in ' + self.__browser + '...')
+                window = RyanairWindow('Chrome')
             elif self.__browser == 'Mozilla':
-                window = webdriver.Firefox(executable_path=r'J:\geckodriver.exe')
+                window = RyanairWindow('Mozilla')
             else:
                 print('There is no webdriver for this browser')
                 exit(-1)
 
-            # open a ryanair site
-            window.get("https://www.ryanair.com/pl/pl")
-
-            # accepting cookies - only selected cookies (only those mandatory)
-            self.__waitToLoadSiteContent(2)
-            cookies = window.find_element_by_xpath('/html/body/div/div/div[3]/button[1]')
-            cookies.click()
-            self.__waitToLoadSiteContent(2)
-            # switch to iframe
-            window.switch_to.frame(window.find_element_by_xpath("//iframe[@id='cookie-preferences__iframe']"))
-            self.__waitToLoadSiteContent(2)
-            toggle = window.find_element_by_xpath('//cookies-details/div/div[7]/div/ry-toggle/label/div/div/div')
-            toggle.click()
-            confirm_cookies = window.find_element_by_xpath(
-                '//cookies-root/ng-component/main/section/div/cookies-details/div/button')
-            confirm_cookies.click()
-            print('Cookies accepted.')
-            # switch back to the outer window
-            window.switch_to.default_content()
+            # accepting only mandatory cookies
+            window.handleCookies()
 
             # selecting one-way trip
-            one_way_btn = window.find_element_by_xpath(
+            window.findElementByXPATHAndClick(
                 "//fsw-trip-type-button[@data-ref='flight-search-trip-type__one-way-trip']")
-            one_way_btn.click()
             print('One-way trip chosen.')
 
-            # entering departure city
-            departure_input = window.find_element_by_xpath("//*[@id='input-button__departure']")
-            departure_input.click()
-            self.__waitToLoadSiteContent(1)
-
             # choosing departure country
-            country_depart = window.find_element_by_xpath(
-                "//div[contains(@class,'countries__country')]/span[text()[contains(.,'" +
-                self.__min_price_flight.getDepartureCountry() + "')]]")
-            country_depart.click()
-            self.__waitToLoadSiteContent(1)
+            window.findElementByXPATHAndClick("//*[@id='input-button__departure']")
+            window.waitToLoadSiteContent(1)
+            window.findElementByXPATHAndClick("//div[contains(@class,'countries__country')]/span[text()[contains(.,'" +
+                                              self.__min_price_flight.getDepartureCountry() + "')]]")
+            window.waitToLoadSiteContent(1)
 
             # choosing departure city
-            self.__waitToLoadSiteContent(1)
-            city_depart = window.find_element_by_xpath(
+            window.findElementByXPATHAndClick(
                 "//span[@data-id='" + self.__min_price_flight.getDeparturePortIATACode() + "']")
-            city_depart.click()
             print('Departure city: ' + self.__min_price_flight.getDepartureCity() + ' chosen.')
-            self.__waitToLoadSiteContent(1)
-
-            # entering destination city
-            dest_input = window.find_element_by_xpath("//*[@id='input-button__destination']")
-            dest_input.click()
-            dest_input.click()
-            self.__waitToLoadSiteContent(1)
+            window.waitToLoadSiteContent(1)
 
             # choosing destination country
-            country_dest = window.find_element_by_xpath(
-                "//div[@class='countries__country b2 ng-star-inserted']/span[text()[contains(.,'" +
-                self.__min_price_flight.getDestinationCountry() + "')]]")
-            country_dest.click()
-            self.__waitToLoadSiteContent(1)
+            window.findElementByXPATHAndDoubleClick("//*[@id='input-button__destination']")
+            window.waitToLoadSiteContent(1)
+            window.findElementByXPATHAndClick(
+                "//div[contains(@class, 'countries__country')]/span[text()[contains(.,'"
+                + self.__min_price_flight.getDestinationCountry() + "')]]")
+            window.waitToLoadSiteContent(1)
 
             # choosing destination city
-            city_dest = window.find_element_by_xpath(
+            window.findElementByXPATHAndClick(
                 "//span[@data-id='" + self.__min_price_flight.getDestinationPortIATACode() + "']")
-            city_dest.click()
             print('Destination city: ' + self.__min_price_flight.getDestinationCity() + ' chosen.')
-            self.__waitToLoadSiteContent(1)
+            window.waitToLoadSiteContent(1)
 
             # choosing start date (at least 10 days from today's date)
             search_start_date = datetime.date.today() + timedelta(days=10)
             is_first_day_chosen = False
 
             while not is_first_day_chosen:
-                depart_day_div = window.find_element(By.CSS_SELECTOR,
-                                                     "div.calendar-body__cell[data-id='" + str(
-                                                         search_start_date) + "']")
-                is_first_day_chosen = self.__isElementClickable(depart_day_div)
+                depart_day_div = window.getWindow().find_element(By.CSS_SELECTOR,
+                                                                 "div.calendar-body__cell[data-id='" + str(
+                                                                     search_start_date) + "']")
+                is_first_day_chosen = window.isElementClickable(depart_day_div)
 
                 if not is_first_day_chosen:
                     search_start_date = search_start_date + timedelta(days=1)
@@ -132,11 +90,8 @@ class RyanairBot:
             print('Search start date: ' + str(search_start_date) + '.')
 
             # clicking 'Find flights' button
-            find_button = window.find_element_by_xpath(
-                "//button[contains(@class, 'flight-search-widget__start-search')]")
-            find_button.click()
-
-            self.__waitToLoadSiteContent(2)
+            window.findElementByXPATHAndClick("//button[contains(@class, 'flight-search-widget__start-search')]")
+            window.waitToLoadSiteContent(2)
 
             # downloading the price for the chosen day
             price = self.__downloadPrice(window)
@@ -161,12 +116,12 @@ class RyanairBot:
                                      self.__min_price_flight.getDestinationCity(), search_start_date, price)
 
             # find 'Edit Search' button and then Calendar
-            self.__findEditSearchBtnAndClick(window)
-            self.__waitToLoadSiteContent(1)
-            self.__findCalendarAndClick(window)
+            window.findEditSearchBtnAndClick()
+            window.waitToLoadSiteContent(1)
+            window.findCalendarAndClick()
 
             # downloading prices for the next 30 days and writing them to the file
-            self.__checkFlightPricesNDaysAhead(20, window, f, search_start_date)
+            self.__checkFlightPricesNDaysAhead(window, 20, f, search_start_date)
 
             # closing file
             f.close()
@@ -176,62 +131,31 @@ class RyanairBot:
             print('Notification sent.')
 
             # close the window
-            window.quit()
+            window.getWindow().quit()
 
         except Exception as e:
             logging.error(traceback.format_exc())
-            # time.sleep(5)
-            # window.quit()
+            time.sleep(5)
+            window.getWindow().quit()
 
-    def __isElementClickable(self, element):
-        """
-        checking if the given element is clickable and if so it's clicked
-        """
-
-        try:
-            element.click()
-            return True
-        except WebDriverException:
-            return False
-
-    def __writeFlightToFile(self, file, depart_city_name, dest_city_name, flight_date, flight_price):
-        """
-        writing flight details to already open csv file
-        """
-
-        flight_to_write = str(datetime.date.today()) + "," + depart_city_name + "-" + dest_city_name + "," + str(
-            flight_date) + "," + str(
-            flight_price) + '\n'
-        file.write(flight_to_write)
-
-    def __waitToLoadSiteContent(self, timeInSec):
-        """
-        pausing the program to wait for loading site content
-        """
-
-        time.sleep(timeInSec)
-
-    def __checkFlightPricesNDaysAhead(self, number_of_days, window, file_pointer, start_date):
+    def __checkFlightPricesNDaysAhead(self, window, number_of_days, file_pointer, start_date):
         """
         checks and writes to the file flight prices for given number of days
         """
 
         while number_of_days > 0:
             start_date = start_date + timedelta(days=1)
-            day_to_check = window.find_element(By.CSS_SELECTOR,
-                                               "div.calendar-body__cell[data-id='" + str(start_date) + "']")
+            day_to_check = window.getWindow().find_element(By.CSS_SELECTOR,
+                                                           "div.calendar-body__cell[data-id='" + str(
+                                                               start_date) + "']")
 
             # check if element with given day is clickable
-            if self.__isElementClickable(day_to_check):
+            if window.isElementClickable(day_to_check):
                 print('Checked day: ' + str(number_of_days))
                 number_of_days -= 1
 
-                # clicking button 'search again'
-                search_again_btn = window.find_element_by_xpath(
-                    "//button[contains(@data-ref, 'flight-search-widget__cta')]")
-                search_again_btn.click()
-
-                # self.__waitToLoadSiteContent(1)
+                # click button 'search again'
+                window.findElementByXPATHAndClick("//button[contains(@data-ref, 'flight-search-widget__cta')]")
 
                 # downloading the price for the chosen day
                 price = self.__downloadPrice(window)
@@ -243,9 +167,9 @@ class RyanairBot:
                 self.__writeFlightToFile(file_pointer, self.__min_price_flight.getDepartureCity(),
                                          self.__min_price_flight.getDestinationCity(), start_date, price)
 
-                self.__findEditSearchBtnAndClick(window)
-                self.__waitToLoadSiteContent(1)
-                self.__findCalendarAndClick(window)
+                window.findEditSearchBtnAndClick()
+                window.waitToLoadSiteContent(1)
+                window.findCalendarAndClick()
             else:
                 continue
 
@@ -254,10 +178,9 @@ class RyanairBot:
         searching for the span with price
         """
 
-        # price_span = window.find_element_by_xpath("//span[contains(@class, 'price__integers')]")
-
         # wait until element is loaded on the site
-        price_span = self.__waitForElementToLoad(window, "//span[contains(@class, 'price__integers')]")
+        window.waitToLoadSiteContent(1.5)
+        price_span = window.getWindow().find_element_by_xpath("//span[contains(@class, 'price__integers')]")
         price = price_span.get_attribute('innerHTML').strip()  # getting price inside the span
 
         # replacing the hard-breaking space with regular one if there is one
@@ -266,21 +189,15 @@ class RyanairBot:
 
         return price
 
-    def __findEditSearchBtnAndClick(self, window):
+    def __writeFlightToFile(self, file, depart_city_name, dest_city_name, flight_date, flight_price):
         """
-        finds 'Edit Search' button and clicks it
-        """
-
-        edit_search_btn = window.find_element_by_xpath("//button[contains(@class,'details__edit-search')]")
-        edit_search_btn.click()
-
-    def __findCalendarAndClick(self, window):
-        """
-        finds Calendar after clicking 'Edit Search' button and clicks it
+        writing flight details to already open csv file
         """
 
-        edit_search_choose_date = window.find_element(By.CSS_SELECTOR, 'div.flight-widget-controls__calendar')
-        edit_search_choose_date.click()
+        flight_to_write = str(datetime.date.today()) + "," + depart_city_name + "-" + dest_city_name + "," + str(
+            flight_date) + "," + str(
+            flight_price) + '\n'
+        file.write(flight_to_write)
 
     def __updateMinPrice(self, price, date):
         """
@@ -302,15 +219,3 @@ class RyanairBot:
             self.__min_price) + " " + self.__min_price_flight.getPriceCurrency()
         win_not = Notification(title_msg, content_msg, 5)
         win_not.sendNotification()
-
-    def __waitForElementToLoad(self, window, path):
-        """
-        waiting given time for an element to load on the site. After that time an exception is raised
-        Returns an element obtained from the given xpath
-        """
-
-        delay = 5  # max time to wait
-        element = WebDriverWait(window, delay).until(
-            EC.presence_of_element_located((By.XPATH, path)))
-
-        return element
