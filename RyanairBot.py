@@ -84,12 +84,12 @@ class RyanairBot:
             print('Notification sent.')
 
             # close the window
-            window.getWindow().quit()
+            window.closeWindow()
 
         except Exception as e:
             logging.error(traceback.format_exc())
             time.sleep(5)
-            window.getWindow().quit()
+            window.closeWindow()
 
     def __checkFlightPricesNDaysAhead(self, window, number_of_days, file_pointer, start_date):
         """
