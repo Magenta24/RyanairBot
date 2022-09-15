@@ -21,6 +21,7 @@ class RyanairWindow(Window):
 
         :return: None
         """
+
         # accepting cookies - only selected cookies (only those mandatory)
         self.waitToLoadSiteContent(2)
         cookies = self.__ryanair_window.find_element_by_xpath('/html/body/div/div/div[3]/button[1]')
@@ -63,27 +64,6 @@ class RyanairWindow(Window):
                                                                      'div.flight-widget-controls__calendar')
         edit_search_choose_date.click()
 
-    def findElementByXPATHAndClick(self, xpath):
-        """
-        Finding an element by the given xpath and clicking it
-
-        :param xpath: path to the given element
-        :return: None
-        """
-        element = self.__ryanair_window.find_element_by_xpath(xpath)
-        element.click()
-
-    def findElementByXPATHAndDoubleClick(self, xpath):
-        """
-        Finding an element by the given xpath and double-clicking it
-
-        :param xpath: path to the given element
-        :return: None
-        """
-        element = self.__ryanair_window.find_element_by_xpath(xpath)
-        element.click()
-        element.click()
-
     def searchForFlight(self, departure_city, destination_city):
         """
         searching for a given flight
@@ -108,7 +88,7 @@ class RyanairWindow(Window):
         # choosing departure city
         self.findElementByXPATHAndClick(
             "//span[@data-id='" + Airports[departure_city].IATA_code + "']")
-        print('Departure city: ' + departure_city + ' chosen.')
+        print('Departure city: ' + departure_city + '.')
         self.waitToLoadSiteContent(1)
 
         # choosing destination country
@@ -122,7 +102,7 @@ class RyanairWindow(Window):
         # choosing destination city
         self.findElementByXPATHAndClick(
             "//span[@data-id='" + Airports[destination_city].IATA_code + "']")
-        print('Destination city: ' + destination_city + ' chosen.')
+        print('Destination city: ' + destination_city + '.')
         self.waitToLoadSiteContent(1)
 
         # choosing start date (at least 10 days from today's date)
