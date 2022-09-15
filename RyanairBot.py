@@ -64,7 +64,7 @@ class RyanairBot:
                 print('File with name: ' + file_name + ' created.')
 
             # writing data to the file - from the first search
-            f = open(file_name, "a")
+            f = open(("search-reports/" + file_name), "a")
             self.__writeFlightToFile(f, self.__min_price_flight.getDepartureCity(),
                                      self.__min_price_flight.getDestinationCity(), search_start_date, price)
 
