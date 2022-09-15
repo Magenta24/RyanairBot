@@ -54,7 +54,7 @@ class RyanairBot:
 
             # writing the flight data to file
             file_name = "ryanair-prices-" + self.__min_price_flight.getDepartureCity() + "-" + self.__min_price_flight.getDestinationCity() + "-" + str(
-                datetime.date.today()) + "-" + str(datetime.datetime.now().strftime("%H%M%S")) + ".txt"
+                datetime.date.today()) + "-" + str(datetime.datetime.now().strftime("%H%M")) + ".txt"
 
             # check if file with such a name exists
             if not exists(file_name):
@@ -167,8 +167,10 @@ class RyanairBot:
         windows notifications with the price and the date
         """
 
-        title_msg = "Ryanair " + self.__min_price_flight.getDepartureCity() + "-" + self.__min_price_flight.getDestinationCity()
-        content_msg = "Flight on the day: " + str(self.__min_price_flight.getFlightDate()) + "\nThe price: " + str(
-            self.__min_price) + " " + self.__min_price_flight.getPriceCurrency()
+        title_msg = "Ryanair " + self.__min_price_flight.getDepartureCity() + "-" \
+                    + self.__min_price_flight.getDestinationCity()
+        content_msg = "Flight on the day: " + str(self.__min_price_flight.getFlightDate()) \
+                      + "\nThe price: " + str(self.__min_price) + " " \
+                      + self.__min_price_flight.getPriceCurrency()
         win_not = Notification(title_msg, content_msg, 5)
         win_not.sendNotification()
