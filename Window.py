@@ -103,5 +103,29 @@ class Window:
         except WebDriverException:
             return False
 
+    def findElementByXPATHAndClick(self, xpath):
+        """
+        Finding an element by the given xpath and clicking it
+
+        :param xpath: path to the given element
+        :return: None
+        """
+        element = self.__window.find_element_by_xpath(xpath)
+        element.click()
+
+    def findElementByXPATHAndDoubleClick(self, xpath):
+        """
+        Finding an element by the given xpath and double-clicking it
+
+        :param xpath: path to the given element
+        :return: None
+        """
+        element = self.__window.find_element_by_xpath(xpath)
+        element.click()
+        element.click()
+
+    def findElementByCSSSelectorAndClick(self, css_path):
+        pass
+
     def closeWindow(self):
         self.__window.quit()
