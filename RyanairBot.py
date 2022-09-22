@@ -9,24 +9,32 @@ from RyanairWindow import RyanairWindow
 from os.path import exists
 
 from datetime import timedelta
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
 
 
 class RyanairBot:
     # class attributes with default values
     __todays_date = datetime.date.today()
-    __search_start_date = __todays_date + timedelta(days=10)
     __min_price = 2147483647
     __browser = None
     __min_price_flight = None
+    __search_start_date = None
+    __search_end_date = None
 
-    def __init__(self, browser, departure_city, destination_city, ):
+    def __init__(self, browser, departure_city, destination_city, start_date, end_date):
         self.__browser = browser
         self.__min_price_flight = Flight(departure_city, destination_city)
+
+        # dates validation
+        if datetime.datetime.strptime(start_date, '%d-%m-%Y').date() < self.__todays_date:
+            print("You cannot provide date in the past!")
+            exit(1)
+        elif datetime.datetime.strptime(start_date, '%d-%m-%Y').date() > datetime.datetime.strptime(end_date,
+                                                                                                    '%d-%m-%Y').date():
+            print("You cannot provide start date older than end_date!")
+        else:
+            self.__search_start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
+            self.__search_end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y').date()
 
     def run(self):
         try:
@@ -43,14 +51,15 @@ class RyanairBot:
             window.handleCookies()
 
             # search for flight
-            search_start_date = window.searchForFlight(self.__min_price_flight.getDepartureCity(),
-                                                       self.__min_price_flight.getDestinationCity())
+            self.__search_start_date = window.searchForFlight(self.__min_price_flight.getDepartureCity(),
+                                                              self.__min_price_flight.getDestinationCity(),
+                                                              self.__search_start_date)
 
             # downloading the price for the chosen day
             price = self.__downloadPrice(window)
 
             # updating the minimum price
-            self.__updateMinPrice(int(price), search_start_date)
+            self.__updateMinPrice(int(price), self.__search_start_date)
 
             # writing the flight data to file
             file_name = "ryanair-prices-" + self.__min_price_flight.getDepartureCity() + "-" + self.__min_price_flight.getDestinationCity() + "-" + str(
@@ -58,7 +67,7 @@ class RyanairBot:
 
             # check if file with such a name exists
             if not exists(file_name):
-                f = open(file_name, "w")
+                f = open(("search-reports/" + file_name), "w")
                 f.write("CheckDate,FlightCourse,FlightDate,Price\n")
                 f.close()
                 print('File with name: ' + file_name + ' created.')
@@ -66,7 +75,7 @@ class RyanairBot:
             # writing data to the file - from the first search
             f = open(("search-reports/" + file_name), "a")
             self.__writeFlightToFile(f, self.__min_price_flight.getDepartureCity(),
-                                     self.__min_price_flight.getDestinationCity(), search_start_date, price)
+                                     self.__min_price_flight.getDestinationCity(), self.__search_start_date, price)
 
             # find 'Edit Search' button and then Calendar
             window.findEditSearchBtnAndClick()
@@ -74,7 +83,7 @@ class RyanairBot:
             window.findCalendarAndClick()
 
             # downloading prices for the next 30 days and writing them to the file
-            self.__checkFlightPricesNDaysAhead(window, 20, f, search_start_date)
+            self.__checkFlightPricesNDaysAhead(window, f, self.__search_start_date, self.__search_end_date)
 
             # closing file
             f.close()
@@ -91,21 +100,22 @@ class RyanairBot:
             time.sleep(5)
             window.closeWindow()
 
-    def __checkFlightPricesNDaysAhead(self, window, number_of_days, file_pointer, start_date):
+    def __checkFlightPricesNDaysAhead(self, window, file_pointer, start_date, end_date):
         """
         checks and writes to the file flight prices for given number of days
         """
 
-        while number_of_days > 0:
-            start_date = start_date + timedelta(days=1)
+        current_date = start_date
+
+        while current_date != (end_date + timedelta(days=1)):
+            current_date += timedelta(days=1)
             day_to_check = window.getWindow().find_element(By.CSS_SELECTOR,
                                                            "div.calendar-body__cell[data-id='" + str(
-                                                               start_date) + "']")
+                                                               current_date) + "']")
 
             # check if element with given day is clickable
             if window.isElementClickable(day_to_check):
-                print('Checked day: ' + str(number_of_days))
-                number_of_days -= 1
+                print('Checked day: ' + str(current_date))
 
                 # click button 'search again'
                 window.findElementByXPATHAndClick("//button[contains(@data-ref, 'flight-search-widget__cta')]")
@@ -114,11 +124,11 @@ class RyanairBot:
                 price = self.__downloadPrice(window)
 
                 # updating the minimum price
-                self.__updateMinPrice(int(price), start_date)
+                self.__updateMinPrice(int(price), current_date)
 
                 # writing flight data to the file
                 self.__writeFlightToFile(file_pointer, self.__min_price_flight.getDepartureCity(),
-                                         self.__min_price_flight.getDestinationCity(), start_date, price)
+                                         self.__min_price_flight.getDestinationCity(), current_date, price)
 
                 window.findEditSearchBtnAndClick()
                 window.waitToLoadSiteContent(1)

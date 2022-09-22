@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 
 
 class RyanairWindow(Window):
-    __website_address = "https://www.ryanair.com/pl/pl"
+    __website_address = "https://www.ryanair.com/"
     __ryanair_window = None
 
     def __init__(self, browser_name):
@@ -64,22 +64,24 @@ class RyanairWindow(Window):
                                                                      'div.flight-widget-controls__calendar')
         edit_search_choose_date.click()
 
-    def searchForFlight(self, departure_city, destination_city):
+    def searchForFlight(self, departure_city, destination_city, start_date):
         """
         searching for a given flight
 
         :param departure_city:
         :param destination_city:
-        :return: date when the search begins
+        :param start_date: search start date user has chosen
+        :return: actual date when the search begins (so if the given date is not available, the nearest next one)
         """
 
         # selecting one-way trip
-        self.findElementByXPATHAndClick(
-            "//fsw-trip-type-button[@data-ref='flight-search-trip-type__one-way-trip']")
+        self.findElementByXPATHAndDoubleClick(
+            "//fsw-trip-type-button[@data-ref='flight-search-trip-type__one-way-trip']/button")
         print('One-way trip chosen.')
 
         # choosing departure country
-        self.findElementByXPATHAndClick("//*[@id='input-button__departure']")
+        self.waitToLoadSiteContent(1)
+        self.findElementByXPATHAndDoubleClick("//*[@id='input-button__departure']")
         self.waitToLoadSiteContent(1)
         self.findElementByXPATHAndClick("//div[contains(@class,'countries__country')]/span[text()[contains(.,'" +
                                         Airports[departure_city].country + "')]]")
@@ -106,22 +108,22 @@ class RyanairWindow(Window):
         self.waitToLoadSiteContent(1)
 
         # choosing start date (at least 10 days from today's date)
-        search_start_date = datetime.date.today() + timedelta(days=10)
         is_first_day_chosen = False
 
+        # if there is no flight on the argument date, the next available date will be the start date
         while not is_first_day_chosen:
             depart_day_div = self.__ryanair_window.find_element(By.CSS_SELECTOR,
                                                                 "div.calendar-body__cell[data-id='" + str(
-                                                                    search_start_date) + "']")
+                                                                    start_date) + "']")
             is_first_day_chosen = self.isElementClickable(depart_day_div)
 
             if not is_first_day_chosen:
-                search_start_date = search_start_date + timedelta(days=1)
+                start_date = start_date + timedelta(days=1)
 
-        print('Search start date: ' + str(search_start_date) + '.')
+        print('Search start date: ' + str(start_date) + '.')
 
         # clicking 'Find flights' button
         self.findElementByXPATHAndClick("//button[contains(@class, 'flight-search-widget__start-search')]")
         self.waitToLoadSiteContent(2)
 
-        return search_start_date
+        return start_date
