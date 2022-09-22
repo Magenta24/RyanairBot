@@ -105,27 +105,36 @@ class Window:
 
     def findElementByXPATHAndClick(self, xpath):
         """
-        Finding an element by the given xpath and clicking it
+        Finds an element by the given xpath and clicks it
 
         :param xpath: path to the given element
         :return: None
         """
-        element = self.__window.find_element_by_xpath(xpath)
-        element.click()
+        element = self.__window.find_element(By.XPATH, xpath)
+        self.__window.execute_script("arguments[0].click();", element)
 
     def findElementByXPATHAndDoubleClick(self, xpath):
         """
-        Finding an element by the given xpath and double-clicking it
+        Finds an element by the given xpath and double-clicks it
 
         :param xpath: path to the given element
         :return: None
         """
-        element = self.__window.find_element_by_xpath(xpath)
-        element.click()
-        element.click()
+
+        element = self.__window.find_element(By.XPATH, xpath)
+        self.__window.execute_script("arguments[0].click();", element)
+        self.__window.execute_script("arguments[0].click();", element)
 
     def findElementByCSSSelectorAndClick(self, css_path):
-        pass
+        """
+        Finds an element by the given css_path and clicks it
+
+        :param css_path: path to the given element
+        :return: None
+        """
+
+        element = self.__window.find_element(By.CSS_SELECTOR, css_path)
+        self.__window.execute_script("arguments[0].click();", element)
 
     def closeWindow(self):
         self.__window.quit()
