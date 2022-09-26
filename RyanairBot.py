@@ -5,6 +5,7 @@ import traceback
 
 from Notification import Notification
 from Flight import Flight
+from airport_data import Airports
 from RyanairWindow import RyanairWindow
 from os.path import exists
 
@@ -22,9 +23,6 @@ class RyanairBot:
     __search_end_date = None
 
     def __init__(self, browser, departure_city, destination_city, start_date, end_date):
-        self.__browser = browser
-        self.__min_price_flight = Flight(departure_city, destination_city)
-
         # dates validation
         if datetime.datetime.strptime(start_date, '%d-%m-%Y').date() < self.__todays_date:
             print("You cannot provide date in the past!")
@@ -35,6 +33,34 @@ class RyanairBot:
         else:
             self.__search_start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
             self.__search_end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y').date()
+
+        # departure and destination cities validation
+        if self.__isThereACity(departure_city) == False:
+            print("Sorry, there is no city: " + departure_city)
+            print("All cities available:")
+            for city in Airports.keys():
+                print(city)
+            exit(1)
+
+        if self.__isThereACity(destination_city) == False:
+            print("Sorry, there is no city: " + destination_city)
+            print("All cities available:")
+            for city in Airports.keys():
+                print(city)
+            exit(1)
+
+
+        # connection validation
+        if self.__isThereConnection(departure_city, destination_city) == False:
+            print("There is no connection between these two cities!")
+            print("All connections available from this departure city:")
+            for city in Airports[departure_city].connections:
+                print(city)
+            exit(1)
+
+        self.__browser = browser
+        self.__min_price_flight = Flight(departure_city, destination_city)
+
 
     def run(self):
         try:
@@ -99,6 +125,36 @@ class RyanairBot:
             logging.error(traceback.format_exc())
             time.sleep(5)
             window.closeWindow()
+
+    def __isThereConnection(self, departure_city, destination_city):
+        """
+        Checks if there is a connection between given cities
+
+        :param departure_city:
+        :param destination_city:
+        :return: True - there is, False - otherwise
+        """
+
+        for connection in Airports[departure_city].connections:
+            if connection == destination_city:
+                return True
+
+        return False
+
+    def __isThereACity(self, city):
+        """
+        Check if there is such city in the data
+
+        :param city: city to check
+        :return: True - there is a city, False - otherwise
+        """
+
+        for key in Airports.keys():
+            if city == key:
+                return True
+
+            return False
+
 
     def __checkFlightPricesNDaysAhead(self, window, file_pointer, start_date, end_date):
         """
