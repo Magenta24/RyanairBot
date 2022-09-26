@@ -7,7 +7,7 @@ Connection = namedtuple('Connection', ['departure_port', 'destination_ports'])
 Airports = {
 
     # Poland
-    'Krakow': Airport('Krakow', 'Polska', 'KRK', 'PLN', ('Wieden', 'Bruksela-Charleroi', 'Prague', 'Leeds', 'Manchester', 'Goteborg')),
+    'Krakow': Airport('Krakow', 'Polska', 'KRK', 'PLN', ('Budapeszt', 'Wieden', 'Bruksela-Charleroi', 'Praga', 'Leeds', 'Manchester', 'Goteborg', 'Billund', 'Kopenhaga', 'Berlin Brandenburg', 'Dortmund', 'Dublin', 'Shannon')),
     'Wroclaw': Airport('Wroclaw', 'Polska', 'WRO', 'PLN', ('Krakow')),
     'Katowice': Airport('Katowice', 'Polska', 'KTW', 'PLN', ('Krakow')),
     'Poznan': Airport('Poznan', 'Polska', 'POZ', 'PLN', ('Krakow')),
@@ -18,9 +18,9 @@ Airports = {
     'Bydgoszcz': Airport('Bydgoszcz', 'Polska', 'BZG', 'PLN', ('Krakow')),
 
     # Austria
-    'Wieden': Airport('Wiedeń', 'Austria', 'WMI', 'EUR', ('Krakow')),
-    'Salzburg': Airport('Salzburg', 'Austria', 'WMI', 'EUR', ('Krakow')),
-    'Klagenfurt': Airport('Klagenfurt', 'Austria', 'WMI', 'EUR', ('Krakow')),
+    'Wieden': Airport('Wiedeń', 'Austria', 'VIE', 'EUR', ('Krakow')),
+    'Salzburg': Airport('Salzburg', 'Austria', 'SZG', 'EUR', ('Krakow')),
+    'Klagenfurt': Airport('Klagenfurt', 'Austria', 'KLU', 'EUR', ('Krakow')),
 
     # Slovakia
     'Bratyslawa': Airport('Bratislava', 'Słowacja', 'BTS', 'EUR', ('Krakow')),
@@ -93,7 +93,7 @@ Airports = {
     'Aalborg': Airport('Aalborg', 'Dania', 'AAL', 'DKK', ('Krakow')),
     'Aarhus': Airport('Aarhus', 'Dania', 'AAR', 'DKK', ('Krakow')),
     'Billund': Airport('Billund', 'Dania', 'BLL', 'DKK', ('Krakow')),
-    'Copenhagen': Airport('Kopenhaga', 'Dania', 'CPH', 'DKK', ('Krakow')),
+    'Kopenhaga': Airport('Kopenhaga', 'Dania', 'CPH', 'DKK', ('Krakow')),
     'Esbjerg': Airport('Esbjerg', 'Dania', 'EBJ', 'DKK', ('Krakow')),
 
     # Finland
@@ -126,6 +126,10 @@ Airports = {
     # Belgium
     'Bruksela-Zaventem': Airport('Bruksela-Zaventem', 'Belgia', 'BRU', 'EUR', ('Krakow')),
     'Bruksela-Charleroi': Airport('Bruksela-Charleroi', 'Belgia', 'CRL', 'EUR', ('Krakow')),
+
+    # Hungary
+    'Budapeszt': Airport('Budapest', 'Węgry', 'BUD', 'HUF', ('Krakow')),
+
 
 
 }
