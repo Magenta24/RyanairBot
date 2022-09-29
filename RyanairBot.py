@@ -23,6 +23,7 @@ class RyanairBot:
     __search_end_date = None
 
     def __init__(self, browser, departure_city, destination_city, start_date, end_date):
+
         # dates validation
         if datetime.datetime.strptime(start_date, '%d-%m-%Y').date() < self.__todays_date:
             print("You cannot provide date in the past!")
@@ -49,7 +50,6 @@ class RyanairBot:
                 print(city)
             exit(1)
 
-
         # connection validation
         if self.__isThereConnection(departure_city, destination_city) == False:
             print("There is no connection between these two cities!")
@@ -61,6 +61,7 @@ class RyanairBot:
         self.__browser = browser
         self.__min_price_flight = Flight(departure_city, destination_city)
 
+        self.run()
 
     def run(self):
         try:
@@ -153,8 +154,7 @@ class RyanairBot:
             if city == key:
                 return True
 
-            return False
-
+        return False
 
     def __checkFlightPricesNDaysAhead(self, window, file_pointer, start_date, end_date):
         """
