@@ -27,7 +27,7 @@ class RyanairGUI(ThemedTk):
         # greetings
         self.addGreetingsLabel(container)
 
-        main_frame = MainFrame(container, 1, function_to_the_bot)
+        main_frame = MainFrame(self, container, 1, function_to_the_bot)
 
         self.mainloop()
 

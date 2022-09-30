@@ -5,12 +5,12 @@ from tkcalendar import Calendar
 
 class MainFrame(ttk.Frame):
 
-    def __init__(self, container, row, function):
+    def __init__(self, root, container, row, function):
         super().__init__(container)
         self.grid(row=row, sticky=tk.EW, padx=70, ipady=50)
-        self.__composeWidgets(function)
+        self.__composeWidgets(root, function)
 
-    def __composeWidgets(self, function):
+    def __composeWidgets(self, root, function):
         # departure city capture (parent - main_frame)
         depart_city_frame = ttk.LabelFrame(self, text='Choose departure city')
         depart_city_frame.grid(row=0, column=0, pady=30)
@@ -57,7 +57,7 @@ class MainFrame(ttk.Frame):
 
         # start search button
         confirm_btn = ttk.Button(self, text='Confirm entered data',
-                                 command=lambda: self.clickCofirmButton(function, browser.get(), depart_city.get(),
+                                 command=lambda: self.clickCofirmButton(root, function, browser.get(), depart_city.get(),
                                                                         dest_city.get(),
                                                                         start_date_cal.get_date(),
                                                                         end_date_cal.get_date()))
@@ -67,8 +67,9 @@ class MainFrame(ttk.Frame):
         picked_cities = ttk.Label(self)
         picked_cities.grid(row=4)
 
-    def clickCofirmButton(self, function, browser, depart_city, dest_city, search_start_date, end_search_date):
+    def clickCofirmButton(self, root, function, browser, depart_city, dest_city, search_start_date, end_search_date):
         x = function(browser, depart_city, dest_city, search_start_date, end_search_date)
+        root.destroy()
 
     def addGreetingsLabel(self):
         greeting = ttk.Label(self,
