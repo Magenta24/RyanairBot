@@ -49,7 +49,6 @@ class RyanairBot:
                 print(city)
             exit(1)
 
-
         # connection validation
         if self.__isThereConnection(departure_city, destination_city) == False:
             print("There is no connection between these two cities!")
@@ -60,7 +59,6 @@ class RyanairBot:
 
         self.__browser = browser
         self.__min_price_flight = Flight(departure_city, destination_city)
-
 
     def run(self):
         try:
@@ -104,12 +102,12 @@ class RyanairBot:
                                      self.__min_price_flight.getDestinationCity(), self.__search_start_date, price)
 
             # find 'Edit Search' button and then Calendar
-            window.findEditSearchBtnAndClick()
-            window.waitToLoadSiteContent(1)
-            window.findCalendarAndClick()
+            # window.findEditSearchBtnAndClick()
+            # window.waitToLoadSiteContent(1)
+            # window.findCalendarAndClick()
 
             # downloading prices for the next 30 days and writing them to the file
-            self.__checkFlightPricesNDaysAhead(window, f, self.__search_start_date, self.__search_end_date)
+            self.__checkFlightPricesNDaysAhead2(window, f, self.__search_start_date, self.__search_end_date)
 
             # closing file
             f.close()
@@ -153,8 +151,7 @@ class RyanairBot:
             if city == key:
                 return True
 
-            return False
-
+        return False
 
     def __checkFlightPricesNDaysAhead(self, window, file_pointer, start_date, end_date):
         """
@@ -189,6 +186,36 @@ class RyanairBot:
                 window.findEditSearchBtnAndClick()
                 window.waitToLoadSiteContent(1)
                 window.findCalendarAndClick()
+            else:
+                continue
+
+    def __checkFlightPricesNDaysAhead2(self, window, file_pointer, start_date, end_date):
+        """
+        alternative function to check and write to the file flight prices for given number of days
+        """
+
+        current_date = start_date
+
+        while current_date != (end_date + timedelta(days=1)):
+            current_date += timedelta(days=1)
+            print(str(current_date))
+            day_to_check = window.getWindow().find_element(By.XPATH, "//li/carousel-item/button[@data-ref='" + str(current_date) + "']")
+
+            # check if element with given day is clickable
+            if window.isElementClickable(day_to_check):
+                print('Checked day: ' + str(current_date))
+                day_to_check.click()
+
+                # downloading the price for the chosen day
+                price = self.__downloadPrice(window)
+
+                # updating the minimum price
+                self.__updateMinPrice(int(price), current_date)
+
+                # writing flight data to the file
+                self.__writeFlightToFile(file_pointer, self.__min_price_flight.getDepartureCity(),
+                                         self.__min_price_flight.getDestinationCity(), current_date, price)
+
             else:
                 continue
 
