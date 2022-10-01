@@ -110,7 +110,7 @@ class RyanairBot:
             # window.findCalendarAndClick()
 
             # downloading prices for the next 30 days and writing them to the file
-            self.__checkFlightPricesNDaysAhead2(window, f, self.__search_start_date, self.__search_end_date)
+            self.__checkFlightPrices2(window, f, self.__search_start_date, self.__search_end_date)
 
             # closing file
             f.close()
@@ -156,7 +156,7 @@ class RyanairBot:
 
         return False
 
-    def __checkFlightPricesNDaysAhead(self, window, file_pointer, start_date, end_date):
+    def __checkFlightPrices(self, window, file_pointer, start_date, end_date):
         """
         checks and writes to the file flight prices for given number of days
         """
@@ -192,7 +192,7 @@ class RyanairBot:
             else:
                 continue
 
-    def __checkFlightPricesNDaysAhead2(self, window, file_pointer, start_date, end_date):
+    def __checkFlightPrices2(self, window, file_pointer, start_date, end_date):
         """
         alternative function to check and write to the file flight prices for given number of days
         """
