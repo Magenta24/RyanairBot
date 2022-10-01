@@ -136,5 +136,30 @@ class Window:
         element = self.__window.find_element(By.CSS_SELECTOR, css_path)
         self.__window.execute_script("arguments[0].click();", element)
 
+    def doesElementChildExists(self, parent_element, xpath):
+        """
+        Checks if given element has a child with given path
+
+        :param parent_element:
+        :param xpath:
+        :return:
+        """
+        if len(parent_element.find_elements(By.XPATH, xpath)) == 0:
+            return False
+        else:
+            return True
+
+    def doesElementExists(self, xpath):
+        """
+        Checks if there is an element under given xpath
+
+        :param xpath:
+        :return: True if exists, False otherwise
+        """
+        if len(self.__window.find_elements(By.XPATH, xpath)) == 0:
+            return False
+        else:
+            return True
+
     def closeWindow(self):
         self.__window.quit()
