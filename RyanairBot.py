@@ -63,7 +63,6 @@ class RyanairBot:
 
         self.run()
 
-
     def run(self):
         try:
             # create Ryanair website window
@@ -199,14 +198,21 @@ class RyanairBot:
         """
 
         current_date = start_date
+        current_date += timedelta(days=1)
 
         while current_date != (end_date + timedelta(days=1)):
-            current_date += timedelta(days=1)
-            print(str(current_date))
-            day_to_check = window.getWindow().find_element(By.XPATH, "//li/carousel-item/button[@data-ref='" + str(current_date) + "']")
+
+            if window.doesElementExists("//li/carousel-item/button[@data-ref='" + str(current_date) + "']"):
+                day_to_check = window.getWindow().find_element(By.XPATH, "//li/carousel-item/button[@data-ref='" + str(
+                    current_date) + "']")
+            else:
+                window.findElementByXPATHAndClick("//button[contains(@class, 'carousel-next')]")
+                continue
 
             # check if element with given day is clickable
-            if window.isElementClickable(day_to_check):
+            # print("Does element exists: " + str(window.doesElementChildExists(day_to_check,".//div[contains(@class, 'date-item__price')]")))
+            if (window.isElementClickable(day_to_check)) and (window.doesElementChildExists(day_to_check,
+                                                                                            ".//div[contains(@class, 'date-item__price')]")):
                 print('Checked day: ' + str(current_date))
                 day_to_check.click()
 
@@ -220,8 +226,7 @@ class RyanairBot:
                 self.__writeFlightToFile(file_pointer, self.__min_price_flight.getDepartureCity(),
                                          self.__min_price_flight.getDestinationCity(), current_date, price)
 
-            else:
-                continue
+            current_date += timedelta(days=1)
 
     def __downloadPrice(self, window):
         """
