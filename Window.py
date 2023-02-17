@@ -26,10 +26,12 @@ class Window:
                 # running bot without 'opening' browser window
                 # options.add_argument('headless')
 
-                self.__window = webdriver.Chrome(executable_path=r'J:\chromedriver_v105.exe', options=options)
+                self.__window = webdriver.Chrome(executable_path=r'J:\chromedriver_win32_v_109\chromedriver.exe', options=options)
                 print('Ryanair Bot is running in ' + browser_name + '...')
             elif browser_name == 'Mozilla':
-                self.__window = webdriver.Firefox(executable_path=r'J:\geckodriver.exe')
+                options = webdriver.FirefoxOptions()
+                options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
+                self.__window = webdriver.Firefox(executable_path=r'J:\geckodriver.exe', options=options)
             else:
                 print('There is no webdriver for this browser')
                 exit(-1)
@@ -41,6 +43,7 @@ class Window:
             logging.error(traceback.format_exc())
             time.sleep(5)
             self.__window.quit()
+            exit(-1)
 
     def getWindow(self):
         """

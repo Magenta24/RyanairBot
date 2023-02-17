@@ -33,15 +33,13 @@ class RyanairWindow(Window):
         self.waitToLoadSiteContent(2)
 
         # click toggle button to uncheck the unnecessary cookies
-        toggle = self.__ryanair_window.find_element_by_xpath(
-            '//cookies-details/div/div[7]/div/ry-toggle/label/div/div/div')
-        toggle.click()
+        self.findElementByXPATHAndDoubleClick('//cookies-details/div/div[7]/div/ry-toggle/label/div/div/div')
 
         # confirm choices
-        confirm_cookies = self.__ryanair_window.find_element_by_xpath(
-            '//cookies-root/ng-component/main/section/div/cookies-details/div/button')
-        confirm_cookies.click()
+        self.findElementByXPATHAndClick('//cookies-root/ng-component/main/section/div/cookies-details/div/button')
         print('Cookies accepted.')
+
+        self.waitToLoadSiteContent(3)
 
         # switch back to the outer window
         self.__ryanair_window.switch_to.default_content()

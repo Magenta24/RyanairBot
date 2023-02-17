@@ -74,7 +74,7 @@ Airports = {
     'Werona': Airport('Werona', 'Włochy', 'VRN', 'EUR', ('Krakow',)),
 
     # Great Britain
-    'Leeds': Airport('Leeds/Bradford', 'Wielka Brytania', 'LBA', 'GBP', ('Krakow',)),
+    'Leeds': Airport('Leeds/Bradford', 'Wielka Brytania', 'LBA', 'GBP', ('Krakow', 'Gdansk', 'Poznan', 'Wroclaw')),
     'Birmingham': Airport('Birmingham', 'Wielka Brytania', 'BHX', 'GBP', ('Krakow',)),
     'East Midlands': Airport('East Midlands', 'Wielka Brytania', 'EMA', 'GBP', ('Krakow',)),
     'Manchester': Airport('Manchester', 'Wielka Brytania', 'MAN', 'GBP', ('Krakow',)),

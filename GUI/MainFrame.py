@@ -11,8 +11,12 @@ class MainFrame(ttk.Frame):
         self.__composeWidgets(root, function)
 
     def __composeWidgets(self, root, function):
+
+        # 'choose cities' frame
+        cities_frame = ttk.Frame(self)
+        cities_frame.grid(row=0)
         # departure city capture (parent - main_frame)
-        depart_city_frame = ttk.LabelFrame(self, text='Choose departure city')
+        depart_city_frame = ttk.LabelFrame(cities_frame, text='Choose departure city')
         depart_city_frame.grid(row=0, column=0, pady=30)
 
         depart_city = tk.StringVar()
@@ -20,12 +24,16 @@ class MainFrame(ttk.Frame):
         depart_city_widget.grid(row=0, column=0)
 
         # destination city capture
-        dest_city_frame = ttk.LabelFrame(self, text='Choose departure city')
+        dest_city_frame = ttk.LabelFrame(cities_frame, text='Choose departure city')
         dest_city_frame.grid(row=0, column=1, pady=30)
 
         dest_city = tk.StringVar()
         dest_city_widget = ttk.Entry(dest_city_frame, textvariable=dest_city)
         dest_city_widget.grid(row=0, column=1)
+
+        # warnings label
+        warning = ttk.Label(cities_frame, text='')
+        warning.grid(row=1, columnspan=2)
 
         # start search date
         choose_start_date_frame = ttk.LabelFrame(self, text='Choose search start date', padding=10)
@@ -126,3 +134,11 @@ class MainFrame(ttk.Frame):
         choose_end_date_frame.grid(row=1, column=1)
         end_date_cal = Calendar(choose_end_date_frame, selectmode='day', showweeknumbers=False, date_pattern='d-m-y')
         end_date_cal.grid(row=0, column=0)
+
+    def displayNoCityWarning(self):
+        warning = ttk.Label(parent, text='There no city like that!')
+        warning.grid(row=row, column=col)
+
+    def displayNoConnectionWarning(self):
+        warning = ttk.Label(parent, text='There no connection between these cities!')
+        warning.grid(row=row, column=col)
