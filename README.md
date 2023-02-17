@@ -3,16 +3,23 @@
 This bot is written in Python using Selenium webdriver. It crawls through Ryanair website and collects flights' prices for the period specified by user. 
 
 ## Requirements
-Python version: Python 3.9.12
-Dependencies: see requirements.txt file
+**Python version: Python 3.9.12**
 
-Firstly, you should create virtual environment and install all required dependencies with commands
+**Dependencies: see requirements.txt file**
+
+### Firstly, you should create virtual environment and install all required dependencies with commands
 
 *python -m venv /path/to/new/virtual/environment* (venv is the name of the environment)
 
 *./path/to/new/virtual/environment/bin/activate* (activate the environment)
 
 *pip install -r requirements.txt*
+
+### You should also have downloaded up-to-date webdrivers
+
+Link to Mozilla webdriver: https://github.com/mozilla/geckodriver/releases
+
+Link to Chrome webdriver: https://chromedriver.chromium.org/downloads (you need check first your browser version)
 
 ## Use Case
 When your environment is prepared to run the program type command
@@ -33,4 +40,10 @@ When bot's work is done, a notification is displayed to the user with the lowest
 - In Window.py __init__ uncomment below line to run the bot without opening browser's window 
 
   *options.add_argument('headless')*
+  
+  ## Adjustments and future development
+- Allowing user to specify the webdriver path or making it relative
+- Placing the bot on the server, so it can be run automatically without user's interaction
+- Writing a client application that downloads the reports from the server and presents the prices to the user
+- Running in parallel mutiple bots
   
