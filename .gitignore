@@ -1,2 +1,4 @@
-/__pycache__
-GUI/__pycache__
+__pycache__
+venv
+.idea
+pyvenv.cfg
