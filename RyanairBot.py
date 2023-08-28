@@ -7,7 +7,6 @@ from Notification import Notification
 from Flight import Flight
 from airport_data import Airports
 from RyanairWindow import RyanairWindow
-from GUI.MainFrame import MainFrame
 from os.path import exists
 
 from datetime import timedelta
@@ -15,15 +14,17 @@ from selenium.webdriver.common.by import By
 
 
 class RyanairBot:
-    # class attributes with default values
-    __today_date = datetime.date.today()
-    __min_price = 2147483647
-    __browser = None
-    __min_price_flight = None
-    __search_start_date = None
-    __search_end_date = None
+
 
     def __init__(self, browser, departure_city, destination_city, start_date, end_date):
+
+        # class attributes with default values
+        self.__today_date = datetime.date.today()
+        self.__min_price = 2147483647
+        self.__browser = None
+        self.__min_price_flight = None
+        self.__search_start_date = None
+        self.__search_end_date = None
 
         # dates validation
         if datetime.datetime.strptime(start_date, '%d-%m-%Y').date() < self.__today_date:
@@ -104,11 +105,6 @@ class RyanairBot:
             f = open(("search-reports/" + file_name), "a")
             self.__writeFlightToFile(f, self.__min_price_flight.getDepartureCity(),
                                      self.__min_price_flight.getDestinationCity(), self.__search_start_date, price)
-
-            # find 'Edit Search' button and then Calendar
-            # window.findEditSearchBtnAndClick()
-            # window.waitToLoadSiteContent(1)
-            # window.findCalendarAndClick()
 
             # downloading prices for the next 30 days and writing them to the file
             self.__checkFlightPrices2(window, f, self.__search_start_date, self.__search_end_date)
@@ -211,7 +207,6 @@ class RyanairBot:
                 continue
 
             # check if element with given day is clickable
-            # print("Does element exists: " + str(window.doesElementChildExists(day_to_check,".//div[contains(@class, 'date-item__price')]")))
             if (window.isElementClickable(day_to_check)) and (window.doesElementChildExists(day_to_check,
                                                                                             ".//div[contains(@class, 'date-item__price')]")):
                 print('Checked day: ' + str(current_date))
@@ -235,8 +230,8 @@ class RyanairBot:
         """
 
         # wait until element is loaded on the site
-        window.waitToLoadSiteContent(1.5)
-        price_span = window.getWindow().find_element_by_xpath("//span[contains(@class, 'price__integers')]")
+        window.waitToLoadSiteContent(2)
+        price_span = window.getWindow().find_element(By.XPATH, "//span[contains(@class, 'price__integers')]")
         price = price_span.get_attribute('innerHTML').strip()  # getting price inside the span
 
         # replacing the hard-breaking space with regular one if there is one

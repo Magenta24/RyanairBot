@@ -8,11 +8,13 @@ from selenium.webdriver.common.by import By
 
 
 class RyanairWindow(Window):
-    __website_address = "https://www.ryanair.com/"
-    __ryanair_window = None
+
 
     def __init__(self, browser_name):
-        super().__init__(browser_name, self.__website_address)
+
+        website_address = "https://www.ryanair.com/"
+
+        super().__init__(browser_name, website_address)
         self.__ryanair_window = super().getWindow()
 
     def handleCookies(self):
@@ -24,13 +26,14 @@ class RyanairWindow(Window):
 
         # accepting cookies - only selected cookies (only those mandatory)
         self.waitToLoadSiteContent(2)
-        cookies = self.__ryanair_window.find_element_by_xpath('/html/body/div/div/div[3]/button[1]')
-        cookies.click()
-        super().waitToLoadSiteContent(2)
+        # cookies = self.__ryanair_window.find_element_by_xpath('/html/body/div/div/div[3]/button[1]')
+        cookies = self.findElementByXPATHAndClick('/html/body/div/div/div[3]/button[1]')
+        # cookies.click()
+        self.waitToLoadSiteContent(2)
 
         # switch to iframe
         self.switchFrames("//iframe[@id='cookie-preferences__iframe']")
-        self.waitToLoadSiteContent(2)
+        self.waitToLoadSiteContent(4)
 
         # click toggle button to uncheck the unnecessary cookies
         self.findElementByXPATHAndDoubleClick('//cookies-details/div/div[7]/div/ry-toggle/label/div/div/div')

@@ -1,6 +1,7 @@
 import logging
 import time
 import traceback
+from config import MOZILLA_WEBDRIVER_PATH, CHROME_WEBDRIVER_PATH
 
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
@@ -10,7 +11,6 @@ from selenium import webdriver
 
 
 class Window:
-    __driver_path = None
     __window = None
 
     def __init__(self, browser_name, website_address):
@@ -26,16 +26,17 @@ class Window:
                 # running bot without 'opening' browser window
                 # options.add_argument('headless')
 
-                self.__window = webdriver.Chrome(executable_path=r'J:\chromedriver_win32_v_109\chromedriver.exe', options=options)
-                print('Ryanair Bot is running in ' + browser_name + '...')
+                self.__window = webdriver.Chrome()
             elif browser_name == 'Mozilla':
                 options = webdriver.FirefoxOptions()
-                options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
-                self.__window = webdriver.Firefox(executable_path=r'J:\geckodriver.exe', options=options)
+                options.add_argument('--headless')
+
+                self.__window = webdriver.Firefox(options=options)
             else:
                 print('There is no webdriver for this browser')
                 exit(-1)
 
+            print('Ryanair Bot is running in ' + browser_name + '...')
             self._openWebPage(website_address)
 
 
@@ -65,7 +66,7 @@ class Window:
         self.__window.get(web_page_address)
 
     def switchFrames(self, xpath):
-        self.__window.switch_to.frame(self.__window.find_element_by_xpath(xpath))
+        self.__window.switch_to.frame(self.__window.find_element(By.XPATH, xpath))
 
     def waitToLoadSiteContent(self, time_in_sec):
         """

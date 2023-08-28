@@ -15,12 +15,6 @@ class RyanairGUI(ThemedTk):
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
-        # importing new style and using it
-        # self.tk.call('lappend', 'auto_path', 'awthemes-10.4.0')
-        # self.tk.call('package', 'require', 'awdark')
-        # s = ttk.Style()
-        # s.theme_use('awdark')
-
         # container (parent - root)
         container = self.addMaiContainer()
 
