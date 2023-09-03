@@ -1,0 +1,25 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flights found</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    {% for price in all_prices %}
+        {% for key, value in price.items %}
+        <p><b>{{ key }}:</b> {{ value }}</p>
+        {% endfor %}
+        <br>
+    {% endfor %}
+    <br>
+    <br>
+    <h1>The cheapest flight</h1>
+    {% for key, value in cheapest_flight.items %}
+        <p>{{ key }}: {{ value }}</p>
+    {% endfor %}
+
+</body>
+</html>

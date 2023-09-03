@@ -1,0 +1,44 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search flight prices</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+<div style="width: 100%;" class="container">
+    <div style="width: 100%;" class="header">
+        <h1 style="text-align: center;">Search flight prices for Ryanair</h1>
+    </div>
+    <div style="width: 70%; margin: auto;" class="user-form">
+
+        <form style="width: 50%; margin: auto;" action="/return_flights/" method="POST">
+            {% csrf_token %}
+            <table>
+                <tr>
+                    <td>Origin city</td>
+                    <td>{{ form.origin_city }}</td>
+                </tr>
+                <tr>
+                    <td>Arrival city</td>
+                    <td>{{ form.arrival_city }}</td>
+                </tr>
+                <tr>
+                    <td>Search start date</td>
+                    <td>{{ form.search_start_date }}</td>
+                </tr>
+                <tr>
+                    <td>Search end date</td>
+                    <td>{{ form.search_end_date }}</td>
+                </tr>
+                <tr>
+                    <td><input type="submit" value="submit"></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+</body>
+</html>
