@@ -1,8 +1,7 @@
 /__pycache__
-GUI/__pycache__
 venv/
 /.idea
 pyvenv.cfg
 /search-reports
 geckodriver.log
-/chromedriver_win32
+/webdrivers
